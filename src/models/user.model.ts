@@ -29,6 +29,7 @@ const UserSchema = new Schema<UserDocument>({
         type: String,
         enum: ["Admin", "Trainer", "Trainee"],
         required: [true, "Role is required"],
+        default: "Trainee"
     },
 });
 

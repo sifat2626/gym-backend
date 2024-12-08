@@ -7,6 +7,8 @@ import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import hpp from "hpp";
 import mongoSanitize from "express-mongo-sanitize";
+import authRoutes from './routes/user.routes'
+import errorHandler from "./middlewares/errorHandler";
 
 dotenv.config();
 
@@ -36,11 +38,11 @@ app.use(mongoSanitize());
 //     const route = require(`./routes/${file}`);
 //     app.use("/api", route);
 // });
-// app.use("/api/products", bookRoute); // Mount the book routes under /api/v1
+app.use("/api/v1", authRoutes);
 // app.use("/api/orders", orderRoute); // Mount the book routes under /api/v1
 
 
-// app.use(errorHandler)
+app.use(errorHandler)
 
 export default  app;
 

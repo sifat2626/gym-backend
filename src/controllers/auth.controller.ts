@@ -15,16 +15,17 @@ const setTokenCookie = (res: Response, token: string) => {
 // Register a new user
 export const registerTrainee = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password } = req.body;
 
         // Check if the user already exists
         const existingUser = await UserModel.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ success: false, message: "Email is already registered" });
+            res.status(400).json({ success: false, message: "Email is already registered" });
+            return;
         }
 
         // Create new user
-        const newUser = new UserModel({ name, email, password, role });
+        const newUser = new UserModel({ name, email, password });
         await newUser.save();
 
         // Generate JWT token
@@ -55,7 +56,8 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         // Find user by email
         const user = await UserModel.findOne({ email });
         if (!user || !(await user.comparePassword(password))) {
-            return res.status(401).json({ success: false, message: "Invalid email or password" });
+            res.status(401).json({ success: false, message: "Invalid email or password" });
+            return;
         }
 
         // Generate JWT token
