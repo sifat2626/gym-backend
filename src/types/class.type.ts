@@ -1,13 +1,14 @@
 // src/types/class.type.ts
 import { Types } from "mongoose";
-import { UserWithId } from "./user.type";
-
-export type TimeSlot = "6-8 AM" | "8-10 AM" | "10-12 PM" | "4-6 PM" | "6-8 PM";
 
 export type Class = {
-    date: Date;
-    timeSlot: TimeSlot;
-    trainer: UserWithId["_id"]; // Reference to User
-    trainees: UserWithId["_id"][]; // Array of User references
-    capacity: number; // Maximum 10
+    title: string; // Name of the class, e.g., "Yoga Morning Session"
+    trainer: Types.ObjectId; // Reference to the Trainer (User model)
+    trainees: Types.ObjectId[]; // List of Trainees (User model)
+    startTime: Date; // Start time of the class
+    endTime: Date; // End time of the class
+    date: Date; // Specific date for the class
+    isActive: boolean; // Indicates if the class is active
 };
+
+export type ClassWithId = Class & { _id: Types.ObjectId };
