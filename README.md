@@ -8,8 +8,8 @@ The **Gym Class Management System** is designed to manage and schedule gym class
 ## **Relation Diagram**
 Below is the relational diagram illustrating the structure of the backend database:
 
-![Relational Diagram](./relation-diagram.png)  
-*(Replace `relation-diagram.png` with your image or provide a [link to the diagram](https://example.com/relation-diagram))*
+[Relational Diagram](https://ibb.co/6wzFpN7)  
+
 
 ---
 
