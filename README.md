@@ -27,12 +27,12 @@ Below is the relational diagram illustrating the structure of the backend databa
 ### **Auth Routes**
 | Method | Endpoint                   | Description                              | Parameters                            |
 |--------|----------------------------|------------------------------------------|----------------------------------------|
-| POST   | `/auth/register`           | Register a new user (Trainee)            | `name`, `email`, `password`            |
-| POST   | `/auth/login`              | Log in to the system                     | `email`, `password`                    |
-| GET    | `/auth/profile`            | Get user profile (requires authentication) | N/A                                  |
-| POST   | `/auth/logout`             | Log out the user                         | N/A                                    |
-| POST   | `/auth/register/trainer`   | Register a new trainer (Admin only)      | `name`, `email`, `password`            |
-| PUT    | `/auth/modify/trainer/:id` | Update trainer details (Admin only)      | `name`, `email`                        |
+| POST   | `/register`           | Register a new user (Trainee)            | `name`, `email`, `password`            |
+| POST   | `/login`              | Log in to the system                     | `email`, `password`                    |
+| GET    | `/profile`            | Get user profile (requires authentication) | N/A                                  |
+| POST   | `/logout`             | Log out the user                         | N/A                                    |
+| POST   | `/register/trainer`   | Register a new trainer (Admin only)      | `name`, `email`, `password`            |
+| PUT    | `/modify/trainer/:id` | Update trainer details (Admin only)      | `name`, `email`                        |
 
 ### **Class Routes**
 | Method | Endpoint                   | Description                              | Parameters                            |
