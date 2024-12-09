@@ -25,6 +25,7 @@ router.get("/profile", protect, getUserProfile);
 router.post("/logout", logoutUser);
 
 router.post("/register/trainer", protect, authorize(["Admin"]), registerTrainer);
+
 router.put("/modify/trainer/:trainerId",protect, authorize(["Admin"]),  modifyTrainer);
 
 export default router;
