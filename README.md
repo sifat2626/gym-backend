@@ -74,8 +74,8 @@ type Class = {
 ---
 
 ## **Admin Credentials**
-- **Email:** admin@example.com
-- **Password:** admin123
+- **Email:** admin1@gmail.com
+- **Password:** 12345678
 
 ---
 
@@ -88,7 +88,7 @@ type Class = {
 
 ### **2. Clone the Repository**
 ```bash
-git clone https://github.com/your-username/gym-class-management.git
+https://github.com/sifat2626/gym-backend.git
 cd gym-class-management
 ```
 
@@ -113,8 +113,5 @@ JWT_SECRET=your_jwt_secret
 npm run dev
 ```
 
-### **6. Test API Endpoints**
-Use a tool like Postman or cURL to test the API endpoints.
-
-Live Hosting Link
-Gym Class Management System
+Live Hosting Link:
+https://gym-backend-orpin.vercel.app/api/v1
