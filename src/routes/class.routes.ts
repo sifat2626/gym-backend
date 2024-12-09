@@ -4,7 +4,7 @@ import {
     getClasses,
     bookClass,
     updateClass,
-    deleteClass,
+    deleteClass, getClassesByTrainer,
 } from "../controllers/class.controller";
 import { protect, authorize } from "../middlewares/auth.middleware";
 
@@ -49,5 +49,7 @@ router.delete(
     authorize(["Admin"]), // Only Admin can delete classes
     deleteClass
 );
+
+router.get("/trainer/:trainerId", getClassesByTrainer);
 
 export default router;

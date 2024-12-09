@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserProfile = exports.logoutUser = exports.loginUser = exports.registerTrainee = void 0;
+exports.modifyTrainer = exports.registerTrainer = exports.getUserProfile = exports.logoutUser = exports.loginUser = exports.registerTrainee = void 0;
 const user_model_1 = __importDefault(require("../models/user.model"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // Helper function to set cookie
@@ -94,3 +94,59 @@ const getUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function*
     res.status(200).json({ success: true, data: user });
 });
 exports.getUserProfile = getUserProfile;
+// Register a new trainer (Admin only)
+const registerTrainer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { name, email, password } = req.body;
+        // Check if the user already exists
+        const existingUser = yield user_model_1.default.findOne({ email });
+        if (existingUser) {
+            res.status(400).json({ success: false, message: "Email is already registered" });
+            return;
+        }
+        // Create a new trainer
+        const newTrainer = new user_model_1.default({
+            name,
+            email,
+            password,
+            role: "Trainer", // Assign the 'Trainer' role
+        });
+        yield newTrainer.save();
+        res.status(201).json({
+            success: true,
+            message: "Trainer registered successfully",
+            data: { id: newTrainer._id, name: newTrainer.name, email: newTrainer.email, role: newTrainer.role },
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.registerTrainer = registerTrainer;
+// Modify a trainer's details (Admin only)
+const modifyTrainer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { trainerId } = req.params;
+        const updates = req.body;
+        // Ensure role updates are restricted
+        if (updates.role && !updates.role.includes("Trainer")) {
+            res.status(400).json({ success: false, message: "Role can only include 'Trainer'" });
+            return;
+        }
+        // Update trainer details
+        const updatedTrainer = yield user_model_1.default.findByIdAndUpdate(trainerId, updates, { new: true });
+        if (!updatedTrainer) {
+            res.status(404).json({ success: false, message: "Trainer not found" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            message: "Trainer details updated successfully",
+            data: { id: updatedTrainer._id, name: updatedTrainer.name, email: updatedTrainer.email, role: updatedTrainer.role },
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.modifyTrainer = modifyTrainer;

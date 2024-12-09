@@ -46,6 +46,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
 // Role-based Authorization Middleware: Checks if the user has the required role
 export const authorize = (roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction): void => {
+        console.log(req.user)
         // Check if the user has the required role
         if (!req.user || !roles.some(role => req.user.role.includes(role))) {
             res.status(403).json({

@@ -18,4 +18,5 @@ class_controller_1.updateClass);
 // Route to delete a class schedule (Admin only)
 router.delete("/:classId/delete", auth_middleware_1.protect, (0, auth_middleware_1.authorize)(["Admin"]), // Only Admin can delete classes
 class_controller_1.deleteClass);
+router.get("/trainer/:trainerId", class_controller_1.getClassesByTrainer);
 exports.default = router;

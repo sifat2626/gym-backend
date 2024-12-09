@@ -1,7 +1,14 @@
 // src/routes/user.routes.ts
 import express from "express";
-import { registerTrainee, loginUser, getUserProfile, logoutUser } from "../controllers/auth.controller";
-import { protect } from "../middlewares/auth.middleware";
+import {
+    registerTrainee,
+    loginUser,
+    getUserProfile,
+    logoutUser,
+    modifyTrainer,
+    registerTrainer
+} from "../controllers/auth.controller";
+import {authorize, protect} from "../middlewares/auth.middleware";
 
 const router = express.Router();
 
@@ -16,5 +23,8 @@ router.get("/profile", protect, getUserProfile);
 
 // User logout route
 router.post("/logout", logoutUser);
+
+router.post("/register/trainer", protect, authorize(["Admin"]), registerTrainer);
+router.put("/modify/trainer/:trainerId",protect, authorize(["Admin"]),  modifyTrainer);
 
 export default router;

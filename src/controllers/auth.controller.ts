@@ -97,3 +97,63 @@ export const getUserProfile = async (req: Request, res: Response) => {
     const user = req.user; // Populated by the auth middleware
     res.status(200).json({ success: true, data: user });
 };
+
+// Register a new trainer (Admin only)
+export const registerTrainer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { name, email, password } = req.body;
+
+        // Check if the user already exists
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
+            res.status(400).json({ success: false, message: "Email is already registered" });
+            return;
+        }
+
+        // Create a new trainer
+        const newTrainer = new UserModel({
+            name,
+            email,
+            password,
+            role: "Trainer", // Assign the 'Trainer' role
+        });
+        await newTrainer.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Trainer registered successfully",
+            data: { id: newTrainer._id, name: newTrainer.name, email: newTrainer.email, role: newTrainer.role },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Modify a trainer's details (Admin only)
+export const modifyTrainer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { trainerId } = req.params;
+        const updates = req.body;
+
+        // Ensure role updates are restricted
+        if (updates.role && !updates.role.includes("Trainer")) {
+            res.status(400).json({ success: false, message: "Role can only include 'Trainer'" });
+            return;
+        }
+
+        // Update trainer details
+        const updatedTrainer = await UserModel.findByIdAndUpdate(trainerId, updates, { new: true });
+        if (!updatedTrainer) {
+            res.status(404).json({ success: false, message: "Trainer not found" });
+            return
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Trainer details updated successfully",
+            data: { id: updatedTrainer._id, name: updatedTrainer.name, email: updatedTrainer.email, role: updatedTrainer.role },
+        });
+    } catch (error) {
+        next(error);
+    }
+};

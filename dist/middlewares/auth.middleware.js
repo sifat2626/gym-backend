@@ -55,6 +55,7 @@ exports.protect = protect;
 // Role-based Authorization Middleware: Checks if the user has the required role
 const authorize = (roles) => {
     return (req, res, next) => {
+        console.log(req.user);
         // Check if the user has the required role
         if (!req.user || !roles.some(role => req.user.role.includes(role))) {
             res.status(403).json({

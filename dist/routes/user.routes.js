@@ -16,4 +16,6 @@ router.post("/login", auth_controller_1.loginUser);
 router.get("/profile", auth_middleware_1.protect, auth_controller_1.getUserProfile);
 // User logout route
 router.post("/logout", auth_controller_1.logoutUser);
+router.post("/register/trainer", auth_middleware_1.protect, (0, auth_middleware_1.authorize)(["Admin"]), auth_controller_1.registerTrainer);
+router.put("/modify/trainer/:trainerId", auth_middleware_1.protect, (0, auth_middleware_1.authorize)(["Admin"]), auth_controller_1.modifyTrainer);
 exports.default = router;

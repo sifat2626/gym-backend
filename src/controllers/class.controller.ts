@@ -11,27 +11,47 @@ const errorResponse = (res: Response, message: string, statusCode: number) => {
 // Create a new class schedule (Admin only)
 export const createClass = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { title, trainer, startTime, endTime, date } = req.body;
+        const { title, trainer, startTime, date } = req.body;
 
-        // Parse the dates using moment.js to ensure valid Date objects
-        const parsedStartTime = moment(startTime, "YYYY-MM-DD HH:mm:ss").toDate();
-        const parsedEndTime = moment(endTime, "YYYY-MM-DD HH:mm:ss").toDate();
-        const parsedDate = moment(date, "YYYY-MM-DD").toDate();
+        // Parse the date
+        const parsedDate = moment(date, "YYYY-MM-DD").startOf("day");
+        if (!parsedDate.isValid()) {
+            errorResponse(res, "Invalid date format. Use 'YYYY-MM-DD'.", 400);
+            return;
+        }
+
+        // Parse the time
+        const parsedStartTime = moment(startTime, "HH:mm");
+        if (!parsedStartTime.isValid()) {
+            errorResponse(res, "Invalid start time format. Use 'HH:mm'.", 400);
+            return;
+        }
+
+        // Combine date and start time
+        const combinedStartTime = moment(parsedDate)
+            .set({
+                hour: parsedStartTime.hours(),
+                minute: parsedStartTime.minutes(),
+            })
+            .toDate();
+
+        // Calculate end time (2 hours later)
+        const endTime = moment(combinedStartTime).add(2, "hours").toDate();
 
         // Check if the trainer exists
         const trainerExists = await UserModel.findById(trainer);
         if (!trainerExists || trainerExists.role !== "Trainer") {
             errorResponse(res, "Invalid trainer ID or the user is not a trainer.", 400);
-            return; // Stop further execution
+            return;
         }
 
         // Create the class
         const newClass = await ClassModel.create({
             title,
             trainer,
-            startTime: parsedStartTime,
-            endTime: parsedEndTime,
-            date: parsedDate,
+            startTime: combinedStartTime,
+            endTime,
+            date: parsedDate.toDate(),
         });
 
         res.status(201).json({
@@ -43,6 +63,7 @@ export const createClass = async (req: Request, res: Response, next: NextFunctio
         next(error);
     }
 };
+
 
 // Get all class schedules (Admin/Trainer only)
 export const getClasses = async (req: Request, res: Response, next: NextFunction) => {
@@ -153,6 +174,32 @@ export const deleteClass = async (req: Request, res: Response, next: NextFunctio
         res.status(200).json({
             success: true,
             message: "Class deleted successfully.",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getClassesByTrainer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { trainerId } = req.params;
+
+        // Validate if the trainer exists and has the correct role
+        const trainer = await UserModel.findById(trainerId);
+        if (!trainer || trainer.role !== "Trainer") {
+            res.status(404).json({ success: false, message: "Trainer not found or invalid role." });
+            return;
+        }
+
+        // Fetch all classes for the trainer
+        const classes = await ClassModel.find({ trainer: trainerId })
+            .populate("trainer", "name email")
+            .populate("trainees", "name email");
+
+        res.status(200).json({
+            success: true,
+            message: "Classes retrieved successfully.",
+            data: classes,
         });
     } catch (error) {
         next(error);

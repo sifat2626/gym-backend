@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteClass = exports.updateClass = exports.bookClass = exports.getClasses = exports.createClass = void 0;
+exports.getClassesByTrainer = exports.deleteClass = exports.updateClass = exports.bookClass = exports.getClasses = exports.createClass = void 0;
 const class_model_1 = __importDefault(require("../models/class.model"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const moment_1 = __importDefault(require("moment")); // Importing moment.js for date parsing and formatting
@@ -23,24 +23,41 @@ const errorResponse = (res, message, statusCode) => {
 // Create a new class schedule (Admin only)
 const createClass = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { title, trainer, startTime, endTime, date } = req.body;
-        // Parse the dates using moment.js to ensure valid Date objects
-        const parsedStartTime = (0, moment_1.default)(startTime, "YYYY-MM-DD HH:mm:ss").toDate();
-        const parsedEndTime = (0, moment_1.default)(endTime, "YYYY-MM-DD HH:mm:ss").toDate();
-        const parsedDate = (0, moment_1.default)(date, "YYYY-MM-DD").toDate();
+        const { title, trainer, startTime, date } = req.body;
+        // Parse the date
+        const parsedDate = (0, moment_1.default)(date, "YYYY-MM-DD").startOf("day");
+        if (!parsedDate.isValid()) {
+            errorResponse(res, "Invalid date format. Use 'YYYY-MM-DD'.", 400);
+            return;
+        }
+        // Parse the time
+        const parsedStartTime = (0, moment_1.default)(startTime, "HH:mm");
+        if (!parsedStartTime.isValid()) {
+            errorResponse(res, "Invalid start time format. Use 'HH:mm'.", 400);
+            return;
+        }
+        // Combine date and start time
+        const combinedStartTime = (0, moment_1.default)(parsedDate)
+            .set({
+            hour: parsedStartTime.hours(),
+            minute: parsedStartTime.minutes(),
+        })
+            .toDate();
+        // Calculate end time (2 hours later)
+        const endTime = (0, moment_1.default)(combinedStartTime).add(2, "hours").toDate();
         // Check if the trainer exists
         const trainerExists = yield user_model_1.default.findById(trainer);
         if (!trainerExists || trainerExists.role !== "Trainer") {
             errorResponse(res, "Invalid trainer ID or the user is not a trainer.", 400);
-            return; // Stop further execution
+            return;
         }
         // Create the class
         const newClass = yield class_model_1.default.create({
             title,
             trainer,
-            startTime: parsedStartTime,
-            endTime: parsedEndTime,
-            date: parsedDate,
+            startTime: combinedStartTime,
+            endTime,
+            date: parsedDate.toDate(),
         });
         res.status(201).json({
             success: true,
@@ -160,3 +177,27 @@ const deleteClass = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.deleteClass = deleteClass;
+const getClassesByTrainer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { trainerId } = req.params;
+        // Validate if the trainer exists and has the correct role
+        const trainer = yield user_model_1.default.findById(trainerId);
+        if (!trainer || trainer.role !== "Trainer") {
+            res.status(404).json({ success: false, message: "Trainer not found or invalid role." });
+            return;
+        }
+        // Fetch all classes for the trainer
+        const classes = yield class_model_1.default.find({ trainer: trainerId })
+            .populate("trainer", "name email")
+            .populate("trainees", "name email");
+        res.status(200).json({
+            success: true,
+            message: "Classes retrieved successfully.",
+            data: classes,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.getClassesByTrainer = getClassesByTrainer;
