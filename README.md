@@ -113,5 +113,8 @@ JWT_SECRET=your_jwt_secret
 npm run dev
 ```
 
+### **6. Postman Documentation**
+https://documenter.getpostman.com/view/23726154/2sAYBd78Gg
+
 Live Hosting Link:
 https://gym-backend-orpin.vercel.app/api/v1
